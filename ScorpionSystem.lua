@@ -1,79 +1,75 @@
 --========================================================--
---              🦂 SCORPION SYSTEM V4                   --
---                 CUSTOM GLOBAL CHAT                   --
---========================================================--
--- LocalScript
+-- 🦂 SCORPION SYSTEM - SINGLE SCRIPT
+-- Place this ONE LocalScript in:
 -- StarterPlayer > StarterPlayerScripts
 --========================================================--
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local Remote = ReplicatedStorage:WaitForChild("ScorpionChatRemote")
+--========================================================--
+-- CONFIG
+--========================================================--
+
+local OWNER = "parth251285"
 
 --========================================================--
 -- COLORS
 --========================================================--
 
-local C = {
-	BG = Color3.fromRGB(9, 8, 12),
-	Sidebar = Color3.fromRGB(15, 14, 19),
-	Panel = Color3.fromRGB(21, 20, 27),
-	Panel2 = Color3.fromRGB(28, 26, 34),
+local BG = Color3.fromRGB(9, 8, 12)
+local SIDEBAR = Color3.fromRGB(15, 14, 19)
+local PANEL = Color3.fromRGB(21, 20, 27)
+local PANEL2 = Color3.fromRGB(29, 27, 36)
 
-	Pink = Color3.fromRGB(245, 35, 125),
-	Pink2 = Color3.fromRGB(255, 75, 155),
+local PINK = Color3.fromRGB(245, 35, 125)
+local PINK2 = Color3.fromRGB(255, 75, 155)
+local PURPLE = Color3.fromRGB(175, 80, 255)
 
-	Purple = Color3.fromRGB(170, 80, 255),
-
-	White = Color3.fromRGB(245, 245, 248),
-	Gray = Color3.fromRGB(155, 151, 165),
-	DarkGray = Color3.fromRGB(90, 87, 98),
-
-	Online = Color3.fromRGB(70, 235, 130)
-}
+local WHITE = Color3.fromRGB(245, 245, 248)
+local GRAY = Color3.fromRGB(155, 151, 165)
+local MUTED = Color3.fromRGB(92, 89, 101)
 
 --========================================================--
--- CLEAN OLD GUI
+-- REMOVE OLD VERSION
 --========================================================--
 
-local Old = PlayerGui:FindFirstChild("ScorpionSystem")
+local old = playerGui:FindFirstChild("ScorpionSystem")
 
-if Old then
-	Old:Destroy()
+if old then
+	old:Destroy()
 end
 
 --========================================================--
 -- HELPERS
 --========================================================--
 
-local function New(class, properties, parent)
+local function create(className, properties, parent)
 
-	local obj = Instance.new(class)
+	local object = Instance.new(className)
 
 	for property, value in pairs(properties) do
-		obj[property] = value
+		object[property] = value
 	end
 
-	obj.Parent = parent
+	object.Parent = parent
 
-	return obj
+	return object
 end
 
-local function Corner(obj, radius)
+local function corner(object, radius)
 
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, radius)
-	c.Parent = obj
+	c.Parent = object
 
 end
 
-local function Stroke(obj, color, thickness, transparency)
+local function stroke(object, color, thickness, transparency)
 
 	local s = Instance.new("UIStroke")
 
@@ -81,486 +77,470 @@ local function Stroke(obj, color, thickness, transparency)
 	s.Thickness = thickness or 1
 	s.Transparency = transparency or 0
 
-	s.Parent = obj
+	s.Parent = object
 
 end
 
-local function Tween(obj, props, duration)
+local function tween(object, properties, duration)
 
-	TweenService:Create(
-		obj,
+	local t = TweenService:Create(
+		object,
 		TweenInfo.new(
-			duration or .2,
+			duration or 0.2,
 			Enum.EasingStyle.Quint,
 			Enum.EasingDirection.Out
 		),
-		props
-	):Play()
+		properties
+	)
 
+	t:Play()
+
+	return t
 end
 
 --========================================================--
 -- SCREEN GUI
 --========================================================--
 
-local Gui = New("ScreenGui", {
+local gui = create("ScreenGui", {
 	Name = "ScorpionSystem",
 	ResetOnSpawn = false,
 	IgnoreGuiInset = true,
-	DisplayOrder = 999
-}, PlayerGui)
+	DisplayOrder = 999,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+}, playerGui)
 
 --========================================================--
--- MAIN
+-- MAIN WINDOW
 --========================================================--
 
-local Main = New("Frame", {
+local main = create("Frame", {
 	Name = "Main",
-	Size = UDim2.new(.84,0,.82,0),
-	Position = UDim2.new(.08,0,.09,0),
-	BackgroundColor3 = C.BG,
+	Size = UDim2.new(0.84, 0, 0.82, 0),
+	Position = UDim2.new(0.08, 0, 0.09, 0),
+	BackgroundColor3 = BG,
 	BorderSizePixel = 0,
 	ClipsDescendants = true
-}, Gui)
+}, gui)
 
-Corner(Main,18)
-Stroke(Main,Color3.fromRGB(70,65,80),1,.25)
+corner(main, 18)
+stroke(main, Color3.fromRGB(75, 70, 85), 1, 0.2)
 
 --========================================================--
--- TOP
+-- TOP BAR
 --========================================================--
 
-local Top = New("Frame", {
-	Size = UDim2.new(1,0,0,70),
-	BackgroundColor3 = C.Panel,
+local top = create("Frame", {
+	Name = "TopBar",
+	Size = UDim2.new(1, 0, 0, 70),
+	BackgroundColor3 = PANEL,
 	BorderSizePixel = 0
-},Main)
+}, main)
 
-local Logo = New("TextLabel", {
-	Size = UDim2.new(0,48,0,48),
-	Position = UDim2.new(0,14,0,11),
-	BackgroundColor3 = C.Pink,
+local logo = create("TextLabel", {
+	Size = UDim2.new(0, 48, 0, 48),
+	Position = UDim2.new(0, 14, 0, 11),
+	BackgroundColor3 = PINK,
 	Text = "🦂",
+	TextColor3 = WHITE,
 	TextSize = 25,
 	Font = Enum.Font.GothamBold
-},Top)
+}, top)
 
-Corner(Logo,14)
+corner(logo, 14)
 
-local Title = New("TextLabel", {
-	Size = UDim2.new(0,260,0,28),
-	Position = UDim2.new(0,74,0,10),
+local title = create("TextLabel", {
+	Size = UDim2.new(0, 270, 0, 28),
+	Position = UDim2.new(0, 74, 0, 10),
 	BackgroundTransparency = 1,
 	Text = "SCORPION SYSTEM",
-	TextColor3 = C.White,
+	TextColor3 = WHITE,
 	TextSize = 20,
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Top)
+}, top)
 
-local Subtitle = New("TextLabel", {
-	Size = UDim2.new(0,300,0,20),
-	Position = UDim2.new(0,75,0,37),
+local subtitle = create("TextLabel", {
+	Size = UDim2.new(0, 300, 0, 20),
+	Position = UDim2.new(0, 75, 0, 38),
 	BackgroundTransparency = 1,
-	Text = "Private communication network",
-	TextColor3 = C.Gray,
+	Text = "Private communication system",
+	TextColor3 = GRAY,
 	TextSize = 11,
 	Font = Enum.Font.Gotham,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Top)
+}, top)
 
-local OnlineDot = New("Frame", {
-	Size = UDim2.new(0,8,0,8),
-	Position = UDim2.new(1,-155,0,26),
-	BackgroundColor3 = C.Online,
+local onlineDot = create("Frame", {
+	Size = UDim2.new(0, 8, 0, 8),
+	Position = UDim2.new(1, -135, 0, 26),
+	BackgroundColor3 = Color3.fromRGB(70, 235, 130),
 	BorderSizePixel = 0
-},Top)
+}, top)
 
-Corner(OnlineDot,20)
+corner(onlineDot, 20)
 
-local Online = New("TextLabel", {
-	Size = UDim2.new(0,90,0,25),
-	Position = UDim2.new(1,-142,0,18),
+local onlineText = create("TextLabel", {
+	Size = UDim2.new(0, 70, 0, 25),
+	Position = UDim2.new(1, -122, 0, 18),
 	BackgroundTransparency = 1,
 	Text = "ONLINE",
-	TextColor3 = C.Gray,
+	TextColor3 = GRAY,
 	TextSize = 10,
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Top)
+}, top)
 
-local Close = New("TextButton", {
-	Size = UDim2.new(0,40,0,40),
-	Position = UDim2.new(1,-50,0,15),
-	BackgroundColor3 = C.Panel2,
+local close = create("TextButton", {
+	Size = UDim2.new(0, 40, 0, 40),
+	Position = UDim2.new(1, -50, 0, 15),
+	BackgroundColor3 = PANEL2,
 	Text = "×",
-	TextColor3 = C.White,
+	TextColor3 = WHITE,
 	TextSize = 23,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = false
-},Top)
+}, top)
 
-Corner(Close,10)
+corner(close, 10)
 
-Close.MouseButton1Click:Connect(function()
-	Gui.Enabled = false
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
 end)
 
 --========================================================--
 -- SIDEBAR
 --========================================================--
 
-local Sidebar = New("Frame", {
-	Size = UDim2.new(0,185,1,-70),
-	Position = UDim2.new(0,0,0,70),
-	BackgroundColor3 = C.Sidebar,
+local sidebar = create("Frame", {
+	Name = "Sidebar",
+	Size = UDim2.new(0, 185, 1, -70),
+	Position = UDim2.new(0, 0, 0, 70),
+	BackgroundColor3 = SIDEBAR,
 	BorderSizePixel = 0
-},Main)
+}, main)
 
-local NavTitle = New("TextLabel", {
-	Size = UDim2.new(1,-25,0,20),
-	Position = UDim2.new(0,15,0,17),
+local navTitle = create("TextLabel", {
+	Size = UDim2.new(1, -25, 0, 20),
+	Position = UDim2.new(0, 15, 0, 17),
 	BackgroundTransparency = 1,
-	Text = "SCORPION",
-	TextColor3 = C.DarkGray,
+	Text = "NAVIGATION",
+	TextColor3 = MUTED,
 	TextSize = 10,
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Sidebar)
+}, sidebar)
 
-local Navigation = {
-	{"💬","Global Chat"},
-	{"👥","Players"},
-	{"📜","Scripts"},
-	{"🛡","Clan"},
-	{"👑","Ranks"}
+local nav = {
+	{"💬", "Global Chat"},
+	{"👥", "Players"},
+	{"📜", "Scripts"},
+	{"🛡", "Clan"},
+	{"👑", "Ranks"}
 }
 
-local NavButtons = {}
-
-for i,data in ipairs(Navigation) do
-
-	local Button = New("TextButton", {
-		Size = UDim2.new(1,-20,0,45),
-		Position = UDim2.new(0,10,0,48+(i-1)*51),
-		BackgroundColor3 = i == 1 and C.Pink or C.Sidebar,
-		Text = data[1].."   "..data[2],
-		TextColor3 = C.White,
-		TextSize = 12,
-		Font = Enum.Font.GothamBold,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		AutoButtonColor = false
-	},Sidebar)
-
-	Corner(Button,10)
-
-	New("UIPadding",{
-		PaddingLeft = UDim.new(0,13)
-	},Button)
-
-	NavButtons[data[2]] = Button
-
-	Button.MouseButton1Click:Connect(function()
-
-		for _,other in pairs(NavButtons) do
-			Tween(other,{
-				BackgroundColor3 = C.Sidebar
-			})
-		end
-
-		Tween(Button,{
-			BackgroundColor3 = C.Pink
-		})
-
-	end)
-end
+local navButtons = {}
 
 --========================================================--
 -- CONTENT
 --========================================================--
 
-local Content = New("Frame", {
-	Size = UDim2.new(1,-185,1,-70),
-	Position = UDim2.new(0,185,0,70),
-	BackgroundColor3 = C.BG,
+local content = create("Frame", {
+	Name = "Content",
+	Size = UDim2.new(1, -185, 1, -70),
+	Position = UDim2.new(0, 185, 0, 70),
+	BackgroundColor3 = BG,
 	BorderSizePixel = 0
-},Main)
+}, main)
 
 --========================================================--
 -- CHAT PAGE
 --========================================================--
 
-local Chat = New("Frame", {
-	Size = UDim2.new(1,-30,1,-30),
-	Position = UDim2.new(0,15,0,15),
+local chatPage = create("Frame", {
+	Name = "GlobalChat",
+	Size = UDim2.new(1, -30, 1, -30),
+	Position = UDim2.new(0, 15, 0, 15),
 	BackgroundTransparency = 1
-},Content)
+}, content)
 
-local ChatTitle = New("TextLabel", {
-	Size = UDim2.new(1,0,0,30),
+local chatTitle = create("TextLabel", {
+	Size = UDim2.new(1, -100, 0, 30),
+	Position = UDim2.new(0, 4, 0, 0),
 	BackgroundTransparency = 1,
 	Text = "Global Chat",
-	TextColor3 = C.White,
+	TextColor3 = WHITE,
 	TextSize = 23,
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Chat)
+}, chatPage)
 
-local ChatSub = New("TextLabel", {
-	Size = UDim2.new(1,0,0,20),
-	Position = UDim2.new(0,0,0,30),
+local chatSub = create("TextLabel", {
+	Size = UDim2.new(1, -100, 0, 20),
+	Position = UDim2.new(0, 4, 0, 30),
 	BackgroundTransparency = 1,
-	Text = "Scorpion users only",
-	TextColor3 = C.Gray,
+	Text = "Scorpion System users",
+	TextColor3 = GRAY,
 	TextSize = 11,
 	Font = Enum.Font.Gotham,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Chat)
+}, chatPage)
 
 --========================================================--
--- MESSAGE SCROLLER
+-- MESSAGE AREA
 --========================================================--
 
-local Messages = New("ScrollingFrame", {
-	Size = UDim2.new(1,0,1,-120),
-	Position = UDim2.new(0,0,0,65),
-	BackgroundColor3 = C.Panel,
+local messages = create("ScrollingFrame", {
+	Name = "Messages",
+	Size = UDim2.new(1, 0, 1, -120),
+	Position = UDim2.new(0, 0, 0, 65),
+	BackgroundColor3 = PANEL,
 	BorderSizePixel = 0,
 	ScrollBarThickness = 4,
-	ScrollBarImageColor3 = C.Pink,
+	ScrollBarImageColor3 = PINK,
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
-	CanvasSize = UDim2.new()
-},Chat)
+	CanvasSize = UDim2.new(0, 0, 0, 0)
+}, chatPage)
 
-Corner(Messages,14)
+corner(messages, 14)
 
-New("UIPadding",{
-	PaddingTop = UDim.new(0,12),
-	PaddingBottom = UDim.new(0,12),
-	PaddingLeft = UDim.new(0,12),
-	PaddingRight = UDim.new(0,12)
-},Messages)
+create("UIPadding", {
+	PaddingTop = UDim.new(0, 12),
+	PaddingBottom = UDim.new(0, 12),
+	PaddingLeft = UDim.new(0, 12),
+	PaddingRight = UDim.new(0, 12)
+}, messages)
 
-local Layout = New("UIListLayout",{
-	Padding = UDim.new(0,8),
+local messageLayout = create("UIListLayout", {
+	Padding = UDim.new(0, 8),
 	SortOrder = Enum.SortOrder.LayoutOrder
-},Messages)
+}, messages)
 
 --========================================================--
--- MESSAGE CREATOR
+-- ADD MESSAGE
 --========================================================--
 
-local function AddMessage(displayName, username, message, system)
+local function addMessage(name, username, text, system)
 
-	local Height = system and 52 or 64
-
-	local Card = New("Frame", {
-		Size = UDim2.new(1,0,0,Height),
+	local card = create("Frame", {
+		Size = UDim2.new(1, 0, 0, system and 55 or 70),
 		BackgroundColor3 = system
-			and Color3.fromRGB(40,27,47)
-			or C.Panel2,
+			and Color3.fromRGB(40, 28, 47)
+			or PANEL2,
 		BorderSizePixel = 0
-	},Messages)
+	}, messages)
 
-	Corner(Card,12)
+	corner(card, 12)
 
-	Stroke(
-		Card,
-		system and C.Purple or Color3.fromRGB(55,52,62),
+	stroke(
+		card,
+		system and PURPLE or Color3.fromRGB(55, 52, 62),
 		1,
-		.55
+		0.55
 	)
 
-	-- Avatar
-
-	local Avatar = New("ImageLabel", {
-		Size = UDim2.new(0,40,0,40),
-		Position = UDim2.new(0,10,0,10),
-		BackgroundColor3 = C.Sidebar,
+	local avatar = create("ImageLabel", {
+		Size = UDim2.new(0, 42, 0, 42),
+		Position = UDim2.new(0, 10, 0, 10),
+		BackgroundColor3 = system and PURPLE or SIDEBAR,
 		BorderSizePixel = 0,
 		Image = ""
-	},Card)
+	}, card)
 
-	Corner(Avatar,20)
+	corner(avatar, 21)
 
 	if system then
 
-		Avatar.BackgroundColor3 = C.Purple
-
-		local Icon = New("TextLabel",{
-			Size = UDim2.new(1,0,1,0),
+		local icon = create("TextLabel", {
+			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,
 			Text = "🦂",
-			TextSize = 17
-		},Avatar)
+			TextSize = 17,
+			Font = Enum.Font.GothamBold
+		}, avatar)
 
 	else
 
 		task.spawn(function()
 
-			local ok,image = pcall(function()
-
-				return Players:GetUserThumbnailAsync(
-					Players:GetUserIdFromNameAsync(username),
-					Enum.ThumbnailType.HeadShot,
-					Enum.ThumbnailSize.Size100x100
-				)
-
+			local ok, userId = pcall(function()
+				return Players:GetUserIdFromNameAsync(username)
 			end)
 
 			if ok then
-				Avatar.Image = image
+
+				local ok2, image = pcall(function()
+
+					return Players:GetUserThumbnailAsync(
+						userId,
+						Enum.ThumbnailType.HeadShot,
+						Enum.ThumbnailSize.Size100x100
+					)
+
+				end)
+
+				if ok2 then
+					avatar.Image = image
+				end
+
 			end
 
 		end)
 
 	end
 
-	-- Name
-
-	local Name = New("TextLabel", {
-		Size = UDim2.new(1,-65,0,20),
-		Position = UDim2.new(0,60,0,8),
+	local nameLabel = create("TextLabel", {
+		Size = UDim2.new(1, -70, 0, 20),
+		Position = UDim2.new(0, 62, 0, 8),
 		BackgroundTransparency = 1,
-		Text = system
-			and "[SYSTEM] "..displayName
-			or displayName,
-		TextColor3 = system and C.Purple or C.Pink2,
+		Text = system and "[SYSTEM] " .. name or name,
+		TextColor3 = system and PURPLE or PINK2,
 		TextSize = 12,
 		Font = Enum.Font.GothamBold,
 		TextXAlignment = Enum.TextXAlignment.Left
-	},Card)
+	}, card)
 
-	-- Message
-
-	local Body = New("TextLabel", {
-		Size = UDim2.new(1,-65,0,30),
-		Position = UDim2.new(0,60,0,29),
+	local body = create("TextLabel", {
+		Size = UDim2.new(1, -70, 0, system and 25 or 38),
+		Position = UDim2.new(0, 62, 0, 30),
 		BackgroundTransparency = 1,
-		Text = message,
-		TextColor3 = system and C.Gray or C.White,
+		Text = text,
+		TextColor3 = system and GRAY or WHITE,
 		TextSize = 13,
 		Font = Enum.Font.Gotham,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top
-	},Card)
+	}, card)
 
-	Card.BackgroundTransparency = 1
+	card.BackgroundTransparency = 1
 
-	Tween(Card,{
+	tween(card, {
 		BackgroundTransparency = 0
-	},.2)
+	}, 0.2)
 
 	task.defer(function()
 
-		Messages.CanvasPosition = Vector2.new(
+		messages.CanvasPosition = Vector2.new(
 			0,
 			math.max(
 				0,
-				Messages.AbsoluteCanvasSize.Y -
-				Messages.AbsoluteWindowSize.Y
+				messages.AbsoluteCanvasSize.Y -
+				messages.AbsoluteWindowSize.Y
 			)
 		)
 
 	end)
+
 end
+
+--========================================================--
+-- INITIAL SYSTEM MESSAGE
+--========================================================--
+
+addMessage(
+	player.DisplayName,
+	player.Name,
+	"joined Scorpion System",
+	true
+)
 
 --========================================================--
 -- COMPOSER
 --========================================================--
 
-local Composer = New("Frame", {
-	Size = UDim2.new(1,0,0,50),
-	Position = UDim2.new(0,0,1,-50),
-	BackgroundColor3 = C.Panel,
+local composer = create("Frame", {
+	Name = "Composer",
+	Size = UDim2.new(1, 0, 0, 50),
+	Position = UDim2.new(0, 0, 1, -50),
+	BackgroundColor3 = PANEL,
 	BorderSizePixel = 0
-},Chat)
+}, chatPage)
 
-Corner(Composer,13)
+corner(composer, 13)
 
 -- Emoji
 
-local EmojiButton = New("TextButton", {
-	Size = UDim2.new(0,38,0,38),
-	Position = UDim2.new(0,6,0,6),
-	BackgroundColor3 = C.Panel2,
+local emojiButton = create("TextButton", {
+	Size = UDim2.new(0, 38, 0, 38),
+	Position = UDim2.new(0, 6, 0, 6),
+	BackgroundColor3 = PANEL2,
 	Text = "😊",
 	TextSize = 18,
 	AutoButtonColor = false
-},Composer)
+}, composer)
 
-Corner(EmojiButton,9)
+corner(emojiButton, 9)
 
 -- Image
 
-local ImageButton = New("TextButton", {
-	Size = UDim2.new(0,38,0,38),
-	Position = UDim2.new(0,49,0,6),
-	BackgroundColor3 = C.Panel2,
+local imageButton = create("TextButton", {
+	Size = UDim2.new(0, 38, 0, 38),
+	Position = UDim2.new(0, 49, 0, 6),
+	BackgroundColor3 = PANEL2,
 	Text = "🖼",
 	TextSize = 17,
 	AutoButtonColor = false
-},Composer)
+}, composer)
 
-Corner(ImageButton,9)
+corner(imageButton, 9)
 
 -- Input
 
-local Input = New("TextBox", {
-	Size = UDim2.new(1,-200,0,38),
-	Position = UDim2.new(0,92,0,6),
-	BackgroundColor3 = Color3.fromRGB(34,32,40),
+local input = create("TextBox", {
+	Size = UDim2.new(1, -200, 0, 38),
+	Position = UDim2.new(0, 92, 0, 6),
+	BackgroundColor3 = Color3.fromRGB(34, 32, 40),
 	BorderSizePixel = 0,
 	Text = "",
 	PlaceholderText = "Message Scorpion users...",
-	PlaceholderColor3 = C.DarkGray,
-	TextColor3 = C.White,
+	PlaceholderColor3 = MUTED,
+	TextColor3 = WHITE,
 	TextSize = 13,
 	Font = Enum.Font.Gotham,
 	ClearTextOnFocus = false,
 	TextXAlignment = Enum.TextXAlignment.Left
-},Composer)
+}, composer)
 
-Corner(Input,9)
+corner(input, 9)
 
-New("UIPadding",{
-	PaddingLeft = UDim.new(0,12),
-	PaddingRight = UDim.new(0,12)
-},Input)
+create("UIPadding", {
+	PaddingLeft = UDim.new(0, 12),
+	PaddingRight = UDim.new(0, 12)
+}, input)
 
 -- Send
 
-local Send = New("TextButton", {
-	Size = UDim2.new(0,92,0,38),
-	Position = UDim2.new(1,-98,0,6),
-	BackgroundColor3 = C.Pink,
+local send = create("TextButton", {
+	Size = UDim2.new(0, 92, 0, 38),
+	Position = UDim2.new(1, -98, 0, 6),
+	BackgroundColor3 = PINK,
 	Text = "SEND  ➤",
-	TextColor3 = C.White,
+	TextColor3 = WHITE,
 	TextSize = 11,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = false
-},Composer)
+}, composer)
 
-Corner(Send,9)
+corner(send, 9)
 
 --========================================================--
--- EMOJIS
+-- EMOJI PANEL
 --========================================================--
 
-local EmojiPopup = New("Frame", {
-	Size = UDim2.new(0,245,0,155),
-	Position = UDim2.new(0,5,1,-215),
-	BackgroundColor3 = C.Panel,
+local emojiPanel = create("Frame", {
+	Size = UDim2.new(0, 245, 0, 155),
+	Position = UDim2.new(0, 5, 1, -215),
+	BackgroundColor3 = PANEL,
 	BorderSizePixel = 0,
 	Visible = false,
-	ZIndex = 100
-},Chat)
+	ZIndex = 50
+}, chatPage)
 
-Corner(EmojiPopup,12)
-Stroke(EmojiPopup,C.Pink,1,.3)
+corner(emojiPanel, 12)
+stroke(emojiPanel, PINK, 1, 0.3)
 
-local Emojis = {
+local emojis = {
 	"😀","😂","😭","🤣","😍",
 	"😎","🔥","❤️","💀","😈",
 	"🤯","😱","🥶","🤡","👑",
@@ -568,188 +548,286 @@ local Emojis = {
 	"👏","🙏","😴","🎉","🚀"
 }
 
-for i,emoji in ipairs(Emojis) do
+for i, emoji in ipairs(emojis) do
 
-	local x = (i-1)%5
-	local y = math.floor((i-1)/5)
+	local column = (i - 1) % 5
+	local row = math.floor((i - 1) / 5)
 
-	local B = New("TextButton", {
-		Size = UDim2.new(0,40,0,27),
-		Position = UDim2.new(0,9+x*46,0,9+y*29),
+	local button = create("TextButton", {
+		Size = UDim2.new(0, 40, 0, 27),
+		Position = UDim2.new(
+			0,
+			9 + column * 46,
+			0,
+			9 + row * 29
+		),
 		BackgroundTransparency = 1,
 		Text = emoji,
 		TextSize = 18,
-		ZIndex = 101
-	},EmojiPopup)
+		ZIndex = 51
+	}, emojiPanel)
 
-	B.MouseButton1Click:Connect(function()
+	button.MouseButton1Click:Connect(function()
 
-		Input.Text = Input.Text..emoji
-		Input:CaptureFocus()
-		EmojiPopup.Visible = false
+		input.Text = input.Text .. emoji
+
+		input:CaptureFocus()
+
+		emojiPanel.Visible = false
 
 	end)
 
 end
 
-EmojiButton.MouseButton1Click:Connect(function()
+emojiButton.MouseButton1Click:Connect(function()
 
-	EmojiPopup.Visible = not EmojiPopup.Visible
-
-end)
-
---========================================================--
--- IMAGE ATTACHMENT
---========================================================--
-
-ImageButton.MouseButton1Click:Connect(function()
-
-	Input.Text =
-		Input.Text ..
-		" [Image: rbxassetid://]"
-
-	Input:CaptureFocus()
+	emojiPanel.Visible = not emojiPanel.Visible
 
 end)
 
 --========================================================--
--- SEND
+-- IMAGE BUTTON
 --========================================================--
 
-local function SendMessage()
+imageButton.MouseButton1Click:Connect(function()
 
-	local text = Input.Text
+	input.Text = input.Text .. " [Image: rbxassetid://]"
+
+	input:CaptureFocus()
+
+end)
+
+--========================================================--
+-- LOCAL SEND
+--========================================================--
+
+local function sendMessage()
+
+	local text = input.Text
 
 	if text == "" then
 		return
 	end
 
-	Remote:FireServer(
-		"Message",
-		text
+	-- Local preview.
+	-- A server is required for real multiplayer synchronization.
+
+	addMessage(
+		player.DisplayName,
+		player.Name,
+		text,
+		false
 	)
 
-	Input.Text = ""
+	input.Text = ""
 
 end
 
-Send.MouseButton1Click:Connect(SendMessage)
+send.MouseButton1Click:Connect(sendMessage)
 
-Input.FocusLost:Connect(function(enter)
+input.FocusLost:Connect(function(enterPressed)
 
-	if enter then
-		SendMessage()
+	if enterPressed then
+		sendMessage()
 	end
 
 end)
 
 --========================================================--
--- RECEIVE
+-- NAVIGATION
 --========================================================--
 
-Remote.OnClientEvent:Connect(function(
-	messageType,
-	displayName,
-	username,
-	message
-)
+for i, data in ipairs(nav) do
 
-	if messageType == "Message" then
+	local button = create("TextButton", {
+		Size = UDim2.new(1, -20, 0, 45),
+		Position = UDim2.new(
+			0,
+			10,
+			0,
+			48 + (i - 1) * 51
+		),
+		BackgroundColor3 = i == 1 and PINK or SIDEBAR,
+		BorderSizePixel = 0,
+		Text = data[1] .. "   " .. data[2],
+		TextColor3 = WHITE,
+		TextSize = 12,
+		Font = Enum.Font.GothamBold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		AutoButtonColor = false
+	}, sidebar)
 
-		AddMessage(
-			displayName,
-			username,
-			message,
-			false
-		)
+	corner(button, 10)
 
-	elseif messageType == "System" then
+	create("UIPadding", {
+		PaddingLeft = UDim.new(0, 13)
+	}, button)
 
-		AddMessage(
-			displayName,
-			"",
-			message,
-			true
-		)
+	navButtons[data[2]] = button
 
-	end
+	button.MouseEnter:Connect(function()
 
-end)
+		if data[2] ~= "Global Chat" then
+
+			tween(button, {
+				BackgroundColor3 = Color3.fromRGB(28, 27, 34)
+			})
+
+		end
+
+	end)
+
+	button.MouseLeave:Connect(function()
+
+		if data[2] ~= "Global Chat" then
+
+			tween(button, {
+				BackgroundColor3 = SIDEBAR
+			})
+
+		end
+
+	end)
+
+	button.MouseButton1Click:Connect(function()
+
+		for _, other in pairs(navButtons) do
+
+			tween(other, {
+				BackgroundColor3 = SIDEBAR
+			})
+
+		end
+
+		tween(button, {
+			BackgroundColor3 = PINK
+		})
+
+		if data[2] == "Global Chat" then
+
+			chatTitle.Text = "Global Chat"
+			chatSub.Text = "Scorpion System users"
+
+		else
+
+			chatTitle.Text = data[2]
+			chatSub.Text = "Scorpion System"
+
+		end
+
+	end)
+
+end
 
 --========================================================--
--- REGISTER
+-- DRAGGING
 --========================================================--
 
-Remote:FireServer("Register")
+local dragging = false
+local dragStart
+local startPosition
 
---========================================================--
--- DRAG WINDOW
---========================================================--
-
-local Dragging = false
-local DragStart
-local StartPosition
-
-Top.InputBegan:Connect(function(input)
+top.InputBegan:Connect(function(inputObject)
 
 	if
-		input.UserInputType ==
-			Enum.UserInputType.MouseButton1
-		or
-		input.UserInputType ==
-			Enum.UserInputType.Touch
+		inputObject.UserInputType == Enum.UserInputType.MouseButton1
+		or inputObject.UserInputType == Enum.UserInputType.Touch
 	then
 
-		Dragging = true
-		DragStart = input.Position
-		StartPosition = Main.Position
+		dragging = true
+		dragStart = inputObject.Position
+		startPosition = main.Position
 
 	end
 
 end)
 
-Top.InputEnded:Connect(function(input)
+top.InputEnded:Connect(function(inputObject)
 
 	if
-		input.UserInputType ==
-			Enum.UserInputType.MouseButton1
-		or
-		input.UserInputType ==
-			Enum.UserInputType.Touch
+		inputObject.UserInputType == Enum.UserInputType.MouseButton1
+		or inputObject.UserInputType == Enum.UserInputType.Touch
 	then
 
-		Dragging = false
+		dragging = false
 
 	end
 
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(inputObject)
 
-	if not Dragging then
+	if not dragging then
 		return
 	end
 
 	if
-		input.UserInputType ==
-			Enum.UserInputType.MouseMovement
-		or
-		input.UserInputType ==
-			Enum.UserInputType.Touch
+		inputObject.UserInputType == Enum.UserInputType.MouseMovement
+		or inputObject.UserInputType == Enum.UserInputType.Touch
 	then
 
-		local Delta =
-			input.Position - DragStart
+		local delta = inputObject.Position - dragStart
 
-		Main.Position = UDim2.new(
-			StartPosition.X.Scale,
-			StartPosition.X.Offset + Delta.X,
-			StartPosition.Y.Scale,
-			StartPosition.Y.Offset + Delta.Y
+		main.Position = UDim2.new(
+			startPosition.X.Scale,
+			startPosition.X.Offset + delta.X,
+			startPosition.Y.Scale,
+			startPosition.Y.Offset + delta.Y
 		)
 
 	end
 
 end)
 
-print("🦂 SCORPION SYSTEM V4 READY")
+--========================================================--
+-- MOBILE SIZE
+--========================================================--
+
+local function responsive()
+
+	if main.AbsoluteSize.X < 700 then
+
+		main.Size = UDim2.new(
+			0.94,
+			0,
+			0.86,
+			0
+		)
+
+		main.Position = UDim2.new(
+			0.03,
+			0,
+			0.07,
+			0
+		)
+
+		sidebar.Size = UDim2.new(
+			0,
+			130,
+			1,
+			-70
+		)
+
+		content.Position = UDim2.new(
+			0,
+			130,
+			0,
+			70
+		)
+
+		content.Size = UDim2.new(
+			1,
+			-130,
+			1,
+			-70
+		)
+
+	end
+
+end
+
+main:GetPropertyChangedSignal("AbsoluteSize"):Connect(responsive)
+
+responsive()
+
+print("🦂 SCORPION SYSTEM LOADED SUCCESSFULLY")
